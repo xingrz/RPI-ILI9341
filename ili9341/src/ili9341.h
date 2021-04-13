@@ -14,5 +14,6 @@ void ili9341_bl(bool on);
 
 void ili9341_clear(uint16_t color);
 void ili9341_fill(uint16_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
+void ili9341_draw(uint16_t *bitmap, uint16_t x, uint16_t y, uint16_t w, uint16_t h);
 
 #endif  // __ILI9341_ILI9341__

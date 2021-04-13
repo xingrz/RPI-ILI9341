@@ -1,13 +1,10 @@
-#include <unistd.h>
 #include <bcm2835.h>
 
 #include "ili9341.h"
 #include "pinout.h"
-
-#define msleep(ms) usleep(ms * 1000)
-
-#define COUNT(x) (sizeof(x) / sizeof(x[0]))
-#define SWAP(n) (((n >> 8) & 0xFF) | ((n & 0xFF) << 8))
+#include "msleep.h"
+#include "count.h"
+#include "swap.h"
 
 #define TRACE 0
 #define TRACE_DATA 0
@@ -106,7 +103,7 @@ ili9341_init(void)
 	bcm2835_spi_begin();
 	bcm2835_spi_setBitOrder(BCM2835_SPI_BIT_ORDER_MSBFIRST);
 	bcm2835_spi_setDataMode(BCM2835_SPI_MODE0);
-	bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_4);
+	bcm2835_spi_setClockDivider(BCM2835_SPI_CLOCK_DIVIDER_8);
 	bcm2835_spi_setChipSelectPolarity(BCM2835_SPI_CS0, LOW);
 	bcm2835_spi_chipSelect(BCM2835_SPI_CS0);
 
@@ -182,13 +179,19 @@ ili9341_clear(uint16_t color)
 void
 ili9341_fill(uint16_t color, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 {
-	ili9341_set_window(x, y, x + w - 1, y + h - 1);
-
 	uint16_t px[w * h];
 	for (int i = 0; i < w * h; i++) {
 		px[i] = SWAP(color);
 	}
 
+	ili9341_draw(px, x, y, w, h);
+}
+
+void
+ili9341_draw(uint16_t *bitmap, uint16_t x, uint16_t y, uint16_t w, uint16_t h)
+{
+	ili9341_set_window(x, y, x + w - 1, y + h - 1);
+
 	ili9341_write_cmd(0x2C);
-	ili9341_write_data(px, sizeof(px));
+	ili9341_write_data(bitmap, w * h * sizeof(uint16_t));
 }
