@@ -13,6 +13,15 @@
 #include <stdio.h>
 #endif
 
+#define MEMORY_ACCESS_MY (1 << 7)
+#define MEMORY_ACCESS_MX (1 << 6)
+#define MEMORY_ACCESS_MV (1 << 5)
+#define MEMORY_ACCESS_ML (1 << 4)
+#define MEMORY_ACCESS_BGR (1 << 3)
+#define MEMORY_ACCESS_MH (1 << 2)
+
+#define FLIP 1
+
 static struct {
 	uint8_t cmd;
 	uint8_t len;
@@ -35,7 +44,11 @@ static struct {
 
 		// Memory Access Control
 		{0x3A, 1, {0x55}},
-		{0x36, 1, {0x08}},
+#if FLIP
+		{0x36, 1, {MEMORY_ACCESS_BGR | MEMORY_ACCESS_MY | MEMORY_ACCESS_MX}},
+#else
+		{0x36, 1, {MEMORY_ACCESS_BGR}},
+#endif
 
 		{0xB1, 2, {0x00, 0x12}},
 
